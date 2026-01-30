@@ -34,15 +34,22 @@ static int	check_death(t_data *data, int i)
 	return (0);
 }
 
+static void	set_dead_flag(t_data *data)
+{
+	pthread_mutex_lock(&data->data_mutex);
+	data->dead_flag = 1;
+	pthread_mutex_unlock(&data->data_mutex);
+}
+
 static int	check_all_finished(t_data *data)
 {
 	int	i;
 	int	finished;
 
-	i = 0;
-	finished = 0;
 	if (data->must_eat_count == -1)
 		return (0);
+	i = 0;
+	finished = 0;
 	pthread_mutex_lock(&data->data_mutex);
 	while (i < data->num_philos)
 	{
@@ -52,12 +59,7 @@ static int	check_all_finished(t_data *data)
 	}
 	pthread_mutex_unlock(&data->data_mutex);
 	if (finished == data->num_philos)
-	{
-		pthread_mutex_lock(&data->data_mutex);
-		data->dead_flag = 1;
-		pthread_mutex_unlock(&data->data_mutex);
-		return (1);
-	}
+		return (set_dead_flag(data), 1);
 	return (0);
 }
 
