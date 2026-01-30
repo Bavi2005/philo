@@ -43,8 +43,12 @@ static void	start_simulation(t_data *data)
 	i = 0;
 	while (i < data->num_philos)
 	{
-		pthread_create(&data->philos[i].thread, NULL,
-			philo_routine, &data->philos[i]);
+		if (pthread_create(&data->philos[i].thread, NULL,
+				philo_routine, &data->philos[i]))
+		{
+			data->dead_flag = 1;
+			break ;
+		}
 		i++;
 	}
 	monitor(data);

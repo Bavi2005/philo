@@ -20,7 +20,7 @@ static int	check_death(t_data *data, int i)
 	pthread_mutex_lock(&data->data_mutex);
 	current_time = get_time();
 	time_since_eat = current_time - data->philos[i].last_eat_time;
-	if (time_since_eat > data->time_to_die)
+	if (time_since_eat >= data->time_to_die)
 	{
 		data->dead_flag = 1;
 		pthread_mutex_unlock(&data->data_mutex);

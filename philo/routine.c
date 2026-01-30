@@ -46,6 +46,8 @@ void	*philo_routine(void *arg)
 	while (!check_dead(philo->data))
 	{
 		philo_eat(philo);
+		if (philo->data->num_philos == 1)
+			break ;
 		if (check_finished(philo) || check_dead(philo->data))
 			break ;
 		philo_sleep(philo);

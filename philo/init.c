@@ -23,7 +23,12 @@ static int	init_mutexes(t_data *data)
 	while (i < data->num_philos)
 	{
 		if (pthread_mutex_init(&data->forks[i], NULL))
+		{
+			while (--i >= 0)
+				pthread_mutex_destroy(&data->forks[i]);
+			free(data->forks);
 			return (1);
+		}
 		i++;
 	}
 	if (pthread_mutex_init(&data->print_mutex, NULL))
@@ -77,6 +82,8 @@ void	cleanup(t_data *data)
 {
 	int	i;
 
+	if (!data->forks)
+		return ;
 	i = 0;
 	while (i < data->num_philos)
 	{
@@ -86,5 +93,6 @@ void	cleanup(t_data *data)
 	pthread_mutex_destroy(&data->print_mutex);
 	pthread_mutex_destroy(&data->data_mutex);
 	free(data->forks);
-	free(data->philos);
+	if (data->philos)
+		free(data->philos);
 }
