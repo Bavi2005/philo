@@ -36,13 +36,36 @@ static int	check_finished(t_philo *philo)
 	return (finished);
 }
 
+static void	wait_all_ready(t_data *data)
+{
+	while (1)
+	{
+		pthread_mutex_lock(&data->data_mutex);
+		if (data->all_ready)
+		{
+			pthread_mutex_unlock(&data->data_mutex);
+			break ;
+		}
+		pthread_mutex_unlock(&data->data_mutex);
+		usleep(50);
+	}
+}
+
+static void	initial_delay(t_philo *philo)
+{
+	wait_all_ready(philo->data);
+	if (philo->data->num_philos == 1)
+		return ;
+	if (philo->id % 2 == 0)
+		ft_usleep(philo->data->time_to_eat / 2, philo->data);
+}
+
 void	*philo_routine(void *arg)
 {
 	t_philo	*philo;
 
 	philo = (t_philo *)arg;
-	if (philo->id % 2 == 0)
-		usleep(1000);
+	initial_delay(philo);
 	while (!check_dead(philo->data))
 	{
 		philo_eat(philo);

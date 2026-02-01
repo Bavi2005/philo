@@ -48,21 +48,27 @@ long	get_time(void)
 void	ft_usleep(long time_ms, t_data *data)
 {
 	long	start;
-	long	current;
+	long	elapsed;
+	long	remaining;
 
 	start = get_time();
-	current = start;
-	while (current - start < time_ms)
+	while (1)
 	{
 		pthread_mutex_lock(&data->data_mutex);
 		if (data->dead_flag)
 		{
 			pthread_mutex_unlock(&data->data_mutex);
-			break ;
+			return ;
 		}
 		pthread_mutex_unlock(&data->data_mutex);
-		usleep(100);
-		current = get_time();
+		elapsed = get_time() - start;
+		if (elapsed >= time_ms)
+			return ;
+		remaining = time_ms - elapsed;
+		if (remaining > 2)
+			usleep(500);
+		else
+			usleep(50);
 	}
 }
 

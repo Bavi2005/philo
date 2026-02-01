@@ -51,6 +51,16 @@ static void	start_simulation(t_data *data)
 		}
 		i++;
 	}
+	pthread_mutex_lock(&data->data_mutex);
+	data->start_time = get_time();
+	i = 0;
+	while (i < data->num_philos)
+	{
+		data->philos[i].last_eat_time = data->start_time;
+		i++;
+	}
+	data->all_ready = 1;
+	pthread_mutex_unlock(&data->data_mutex);
 	monitor(data);
 	i = 0;
 	while (i < data->num_philos)

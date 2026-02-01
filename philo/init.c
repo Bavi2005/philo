@@ -50,7 +50,8 @@ int	init_data(t_data *data, int ac, char **av)
 		data->must_eat_count = -1;
 	data->dead_flag = 0;
 	data->finished_count = 0;
-	data->start_time = get_time();
+	data->all_ready = 0;
+	data->start_time = 0;
 	if (init_mutexes(data))
 		return (1);
 	return (0);
@@ -68,7 +69,7 @@ int	init_philos(t_data *data)
 	{
 		data->philos[i].id = i + 1;
 		data->philos[i].eat_count = 0;
-		data->philos[i].last_eat_time = data->start_time;
+		data->philos[i].last_eat_time = 0;
 		data->philos[i].left_fork = &data->forks[i];
 		data->philos[i].right_fork = &data->forks[(i + 1)
 			% data->num_philos];

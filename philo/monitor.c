@@ -18,9 +18,14 @@ static int	check_death(t_data *data, int i)
 	long	time_since_eat;
 
 	pthread_mutex_lock(&data->data_mutex);
+	if (data->dead_flag)
+	{
+		pthread_mutex_unlock(&data->data_mutex);
+		return (1);
+	}
 	current_time = get_time();
 	time_since_eat = current_time - data->philos[i].last_eat_time;
-	if (time_since_eat >= data->time_to_die)
+	if (time_since_eat > data->time_to_die)
 	{
 		data->dead_flag = 1;
 		pthread_mutex_unlock(&data->data_mutex);
@@ -79,6 +84,6 @@ void	monitor(t_data *data)
 		}
 		if (check_all_finished(data))
 			return ;
-		usleep(1000);
+		usleep(500);
 	}
 }

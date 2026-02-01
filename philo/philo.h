@@ -41,6 +41,7 @@ typedef struct s_data
 	int				must_eat_count;
 	int				dead_flag;
 	int				finished_count;
+	int				all_ready;
 	long			start_time;
 	pthread_mutex_t	*forks;
 	pthread_mutex_t	print_mutex;
