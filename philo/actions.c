@@ -52,11 +52,11 @@ void	philo_eat(t_philo *philo)
 	take_forks(philo);
 	if (philo->data->num_philos == 1)
 		return ;
-	print_status(philo, "is eating");
 	pthread_mutex_lock(&philo->data->data_mutex);
 	philo->last_eat_time = get_time();
 	philo->eat_count++;
 	pthread_mutex_unlock(&philo->data->data_mutex);
+	print_status(philo, "is eating");
 	ft_usleep(philo->data->time_to_eat, philo->data);
 	release_forks(philo);
 }
@@ -70,13 +70,17 @@ void	philo_sleep(t_philo *philo)
 void	philo_think(t_philo *philo)
 {
 	long	think_time;
+	int		n;
 
 	print_status(philo, "is thinking");
-	if (philo->data->num_philos % 2 == 1)
+	n = philo->data->num_philos;
+	if (n % 2 == 1)
 	{
-		think_time = (philo->data->time_to_eat * 2
-				- philo->data->time_to_sleep);
+		think_time = (philo->data->time_to_eat * 2)
+			- philo->data->time_to_sleep;
 		if (think_time > 0)
-			ft_usleep(think_time * 0.8, philo->data);
+			ft_usleep(think_time, philo->data);
 	}
+	else if (n > 100)
+		usleep(100);
 }

@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   utils.c                                            :+:      :+:    :+:   */
+/*   utils_bonus.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: bpichyal <bpichyal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philo.h"
+#include "philo_bonus.h"
 
 int	ft_atoi(const char *str)
 {
@@ -45,7 +45,7 @@ long	get_time(void)
 	return ((tv.tv_sec * 1000) + (tv.tv_usec / 1000));
 }
 
-void	ft_usleep(long time_ms, t_data *data)
+void	ft_usleep(long time_ms)
 {
 	long	start;
 	long	elapsed;
@@ -53,13 +53,6 @@ void	ft_usleep(long time_ms, t_data *data)
 	start = get_time();
 	while (1)
 	{
-		pthread_mutex_lock(&data->data_mutex);
-		if (data->dead_flag)
-		{
-			pthread_mutex_unlock(&data->data_mutex);
-			return ;
-		}
-		pthread_mutex_unlock(&data->data_mutex);
 		elapsed = get_time() - start;
 		if (elapsed >= time_ms)
 			return ;
@@ -70,17 +63,13 @@ void	ft_usleep(long time_ms, t_data *data)
 	}
 }
 
-void	print_status(t_philo *philo, char *status)
+void	print_status(t_data *data, char *status)
 {
 	long	timestamp;
 
-	pthread_mutex_lock(&philo->data->print_mutex);
-	pthread_mutex_lock(&philo->data->data_mutex);
-	if (!philo->data->dead_flag)
-	{
-		timestamp = get_time() - philo->data->start_time;
-		printf("%ld %d %s\n", timestamp, philo->id, status);
-	}
-	pthread_mutex_unlock(&philo->data->data_mutex);
-	pthread_mutex_unlock(&philo->data->print_mutex);
+	sem_wait(data->print_sem);
+	timestamp = get_time() - data->start_time;
+	printf("%ld %d %s\n", timestamp, data->philo_id, status);
+	if (status[0] != 'd')
+		sem_post(data->print_sem);
 }

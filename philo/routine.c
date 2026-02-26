@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   routine.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bpichyal <bpichyal@student.42.fr>          +#+  +:+       +#+        */
+/*   By: bpichyal <bpichyal@student.42kl.edu.my>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/12 17:12:43 by bpichyal          #+#    #+#             */
-/*   Updated: 2025/11/12 17:12:44 by bpichyal         ###   ########.fr       */
+/*   Updated: 2026/02/04 01:09:09 by bpichyal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ static void	initial_delay(t_philo *philo)
 	if (philo->data->num_philos == 1)
 		return ;
 	if (philo->id % 2 == 0)
-		ft_usleep(philo->data->time_to_eat / 2, philo->data);
+		usleep(philo->data->time_to_eat * 500);
 }
 
 void	*philo_routine(void *arg)

@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   philo.c                                            :+:      :+:    :+:   */
+/*   philo_bonus.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: bpichyal <bpichyal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philo.h"
+#include "philo_bonus.h"
 
 static int	validate_args(int ac, char **av)
 {
@@ -36,52 +36,50 @@ static int	validate_args(int ac, char **av)
 	return (0);
 }
 
-static int	create_threads(t_data *data)
+static void	init_child(t_data *data, int i)
 {
-	int	i;
-
-	i = 0;
-	while (i < data->num_philos)
-	{
-		if (pthread_create(&data->philos[i].thread, NULL,
-				philo_routine, &data->philos[i]))
-		{
-			data->dead_flag = 1;
-			return (1);
-		}
-		i++;
-	}
-	return (0);
+	data->philo_id = i + 1;
+	data->last_eat_time = data->start_time;
+	data->eat_count = 0;
+	philo_routine(data);
 }
 
-static void	init_start_time(t_data *data)
+static void	create_philosophers(t_data *data)
 {
-	int	i;
+	int		i;
+	pid_t	pid;
 
-	pthread_mutex_lock(&data->data_mutex);
-	data->start_time = get_time();
-	i = 0;
-	while (i < data->num_philos)
-	{
-		data->philos[i].last_eat_time = data->start_time;
-		i++;
-	}
-	data->all_ready = 1;
-	pthread_mutex_unlock(&data->data_mutex);
-}
-
-static void	start_simulation(t_data *data)
-{
-	int	i;
-
-	if (create_threads(data))
+	data->pids = malloc(sizeof(pid_t) * data->num_philos);
+	if (!data->pids)
 		return ;
-	init_start_time(data);
-	monitor(data);
+	i = 0;
+	data->start_time = get_time();
+	while (i < data->num_philos)
+	{
+		pid = fork();
+		if (pid < 0)
+			return (kill_all_philos(data));
+		if (pid == 0)
+			init_child(data, i);
+		data->pids[i] = pid;
+		i++;
+	}
+}
+
+static void	wait_for_philosophers(t_data *data)
+{
+	int	i;
+	int	status;
+
 	i = 0;
 	while (i < data->num_philos)
 	{
-		pthread_join(data->philos[i].thread, NULL);
+		waitpid(-1, &status, 0);
+		if (WIFEXITED(status) && WEXITSTATUS(status) == 1)
+		{
+			kill_all_philos(data);
+			break ;
+		}
 		i++;
 	}
 }
@@ -100,13 +98,10 @@ int	main(int ac, char **av)
 		printf("Error: Initialization failed\n");
 		return (1);
 	}
-	if (init_philos(&data))
-	{
-		cleanup(&data);
-		printf("Error: Philosopher initialization failed\n");
-		return (1);
-	}
-	start_simulation(&data);
-	cleanup(&data);
+	create_philosophers(&data);
+	wait_for_philosophers(&data);
+	cleanup_semaphores(&data);
+	if (data.pids)
+		free(data.pids);
 	return (0);
 }
