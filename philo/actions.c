@@ -14,25 +14,48 @@
 
 static void	take_forks(t_philo *philo)
 {
+	pthread_mutex_t	*first;
+	pthread_mutex_t	*second;
+ 	int			locked;
+
+	/* Single philosopher: grab the only fork and wait for death */
 	if (philo->data->num_philos == 1)
 	{
 		pthread_mutex_lock(philo->left_fork);
 		print_status(philo, "has taken a fork");
 		return ;
 	}
-	if (philo->id % 2 == 0)
+	/* Order forks consistently to avoid circular wait / starvation */
+	if (philo->left_fork < philo->right_fork)
 	{
-		pthread_mutex_lock(philo->right_fork);
-		print_status(philo, "has taken a fork");
-		pthread_mutex_lock(philo->left_fork);
-		print_status(philo, "has taken a fork");
+		first = philo->left_fork;
+		second = philo->right_fork;
 	}
 	else
 	{
-		pthread_mutex_lock(philo->left_fork);
+		first = philo->right_fork;
+		second = philo->left_fork;
+	}
+	while (1)
+	{
+		pthread_mutex_lock(first);
 		print_status(philo, "has taken a fork");
-		pthread_mutex_lock(philo->right_fork);
-		print_status(philo, "has taken a fork");
+		locked = pthread_mutex_trylock(second);
+		if (locked == 0)
+		{
+			print_status(philo, "has taken a fork");
+			return ;
+		}
+		pthread_mutex_unlock(first);
+		/* brief backoff to let neighbours progress */
+		usleep(100);
+		pthread_mutex_lock(&philo->data->data_mutex);
+		if (philo->data->dead_flag)
+		{
+			pthread_mutex_unlock(&philo->data->data_mutex);
+			return ;
+		}
+		pthread_mutex_unlock(&philo->data->data_mutex);
 	}
 }
 
