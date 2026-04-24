@@ -36,7 +36,7 @@ static int	validate_args(int ac, char **av)
 	return (0);
 }
 
-static int	create_threads(t_data *data)
+static void	start_simulation(t_data *data)
 {
 	int	i;
 
@@ -47,17 +47,10 @@ static int	create_threads(t_data *data)
 				philo_routine, &data->philos[i]))
 		{
 			data->dead_flag = 1;
-			return (1);
+			break ;
 		}
 		i++;
 	}
-	return (0);
-}
-
-static void	init_start_time(t_data *data)
-{
-	int	i;
-
 	pthread_mutex_lock(&data->data_mutex);
 	data->start_time = get_time();
 	i = 0;
@@ -68,15 +61,6 @@ static void	init_start_time(t_data *data)
 	}
 	data->all_ready = 1;
 	pthread_mutex_unlock(&data->data_mutex);
-}
-
-static void	start_simulation(t_data *data)
-{
-	int	i;
-
-	if (create_threads(data))
-		return ;
-	init_start_time(data);
 	monitor(data);
 	i = 0;
 	while (i < data->num_philos)

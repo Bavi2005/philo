@@ -14,48 +14,25 @@
 
 static void	take_forks(t_philo *philo)
 {
-	pthread_mutex_t	*first;
-	pthread_mutex_t	*second;
- 	int			locked;
-
-	/* Single philosopher: grab the only fork and wait for death */
 	if (philo->data->num_philos == 1)
 	{
 		pthread_mutex_lock(philo->left_fork);
 		print_status(philo, "has taken a fork");
 		return ;
 	}
-	/* Order forks consistently to avoid circular wait / starvation */
-	if (philo->left_fork < philo->right_fork)
+	if (philo->id % 2 == 0)
 	{
-		first = philo->left_fork;
-		second = philo->right_fork;
+		pthread_mutex_lock(philo->right_fork);
+		print_status(philo, "has taken a fork");
+		pthread_mutex_lock(philo->left_fork);
+		print_status(philo, "has taken a fork");
 	}
 	else
 	{
-		first = philo->right_fork;
-		second = philo->left_fork;
-	}
-	while (1)
-	{
-		pthread_mutex_lock(first);
+		pthread_mutex_lock(philo->left_fork);
 		print_status(philo, "has taken a fork");
-		locked = pthread_mutex_trylock(second);
-		if (locked == 0)
-		{
-			print_status(philo, "has taken a fork");
-			return ;
-		}
-		pthread_mutex_unlock(first);
-		/* brief backoff to let neighbours progress */
-		usleep(100);
-		pthread_mutex_lock(&philo->data->data_mutex);
-		if (philo->data->dead_flag)
-		{
-			pthread_mutex_unlock(&philo->data->data_mutex);
-			return ;
-		}
-		pthread_mutex_unlock(&philo->data->data_mutex);
+		pthread_mutex_lock(philo->right_fork);
+		print_status(philo, "has taken a fork");
 	}
 }
 
@@ -93,17 +70,24 @@ void	philo_sleep(t_philo *philo)
 void	philo_think(t_philo *philo)
 {
 	long	think_time;
-	int		n;
+	long	deadline_window;
 
 	print_status(philo, "is thinking");
-	n = philo->data->num_philos;
-	if (n % 2 == 1)
+	if (philo->data->num_philos % 2 == 1)
 	{
-		think_time = (philo->data->time_to_eat * 2)
-			- philo->data->time_to_sleep;
+		think_time = (philo->data->time_to_eat * 2
+				- philo->data->time_to_sleep);
+		deadline_window = philo->data->time_to_eat * 2
+			+ philo->data->time_to_sleep;
+		if (philo->data->time_to_die <= deadline_window)
+			think_time++;
+		else if (philo->data->time_to_die == deadline_window + 1
+			&& think_time > 1)
+			think_time -= 2;
 		if (think_time > 0)
 			ft_usleep(think_time, philo->data);
 	}
-	else if (n > 100)
-		usleep(100);
+	else if (philo->data->time_to_die
+		<= philo->data->time_to_eat + philo->data->time_to_sleep)
+		ft_usleep(1, philo->data);
 }

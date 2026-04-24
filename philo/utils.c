@@ -49,6 +49,7 @@ void	ft_usleep(long time_ms, t_data *data)
 {
 	long	start;
 	long	elapsed;
+	long	remaining;
 
 	start = get_time();
 	while (1)
@@ -63,10 +64,11 @@ void	ft_usleep(long time_ms, t_data *data)
 		elapsed = get_time() - start;
 		if (elapsed >= time_ms)
 			return ;
-		if (time_ms - elapsed > 1)
+		remaining = time_ms - elapsed;
+		if (remaining > 2)
 			usleep(500);
 		else
-			usleep(100);
+			usleep(50);
 	}
 }
 
