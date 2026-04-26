@@ -1,33 +1,44 @@
 # **************************************************************************** #
 #                                                                              #
-#                                                         :::      ::::::::   #
-#    Makefile                                           :+:      :+:    :+:   #
-#                                                     +:+ +:+         +:+     #
-#    By: bpichyal <bpichyal@student.42.fr>          +#+  +:+       +#+        #
-#                                                 +#+#+#+#+#+   +#+           #
-#    Created: 2025/11/12 17:12:43 by bpichyal          #+#    #+#             #
-#    Updated: 2025/11/12 17:12:44 by bpichyal         ###   ########.fr       #
+#                                                         :::      ::::::::    #
+#    Makefile                                           :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: bpichyal <bpichyal@student.42.fr>          +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2026/04/25 00:00:00 by bpichyal          #+#    #+#              #
+#    Updated: 2026/04/25 00:00:00 by bpichyal         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-NAME = philo_bonus
+NAME		= philo_bonus
 
-CC = cc
-CFLAGS = -Wall -Wextra -Werror -pthread
+SRC			= main.c \
+			  parse.c \
+			  utils.c \
+			  init.c \
+			  init_setup.c \
+			  process.c \
+			  child.c \
+			  routine.c \
+			  routine_utils.c \
+			  monitor.c \
+			  print.c
 
-SRCS = philo_bonus.c init_bonus.c utils_bonus.c routine_bonus.c monitor_bonus.c
-OBJS = $(SRCS:.c=.o)
+OBJ			= $(SRC:.c=.o)
+
+CC			= cc
+CFLAGS		= -Wall -Wextra -Werror -pthread
 
 all: $(NAME)
 
-$(NAME): $(OBJS)
-	$(CC) $(CFLAGS) $(OBJS) -o $(NAME)
+$(NAME): $(OBJ)
+	$(CC) $(CFLAGS) $(OBJ) -o $(NAME)
 
 %.o: %.c philo_bonus.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f $(OBJS)
+	rm -f $(OBJ)
 
 fclean: clean
 	rm -f $(NAME)

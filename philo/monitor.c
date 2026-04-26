@@ -12,6 +12,17 @@
 
 #include "philo.h"
 
+static int	set_and_print_death(t_data *data, int i, long current_time)
+{
+	data->dead_flag = 1;
+	pthread_mutex_unlock(&data->data_mutex);
+	pthread_mutex_lock(&data->print_mutex);
+	printf("%ld %d died\n", current_time - data->start_time,
+		data->philos[i].id);
+	pthread_mutex_unlock(&data->print_mutex);
+	return (1);
+}
+
 static int	check_death(t_data *data, int i)
 {
 	long	current_time;
@@ -31,15 +42,7 @@ static int	check_death(t_data *data, int i)
 		&& data->time_to_die > data->time_to_eat + data->time_to_sleep)
 		grace_ms = 2;
 	if (time_since_eat > data->time_to_die + grace_ms)
-	{
-		data->dead_flag = 1;
-		pthread_mutex_unlock(&data->data_mutex);
-		pthread_mutex_lock(&data->print_mutex);
-		printf("%ld %d died\n", current_time - data->start_time,
-			data->philos[i].id);
-		pthread_mutex_unlock(&data->print_mutex);
-		return (1);
-	}
+		return (set_and_print_death(data, i, current_time));
 	pthread_mutex_unlock(&data->data_mutex);
 	return (0);
 }
