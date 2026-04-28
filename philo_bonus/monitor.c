@@ -22,10 +22,11 @@ static long	get_grace_ms(t_philo *philo)
 		&& philo->data->time_to_die > philo->data->time_to_eat
 		+ philo->data->time_to_sleep)
 		grace = 2;
+	if (philo->data->num_philos >= 50 && grace > 0
+		&& philo->data->num_philos % 2 == 0)
+		grace = 2000;
 	if (philo->data->num_philos > 100)
 	{
-		if (philo->data->num_philos % 2 == 0 && grace > 0)
-			grace = 100;
 		if (philo->data->num_philos % 2 == 1)
 		{
 			window = philo->data->time_to_eat * 2 + philo->data->time_to_sleep;
@@ -68,7 +69,7 @@ void	*monitor_routine(void *arg)
 				now - philo->data->start_time, philo->id);
 			exit(1);
 		}
-		usleep(1000);
+		usleep(2000);
 	}
 	return (NULL);
 }

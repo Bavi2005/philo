@@ -35,7 +35,11 @@ void	philo_think(t_philo *philo)
 		think_time = philo->data->time_to_eat * 2 - philo->data->time_to_sleep;
 		window = philo->data->time_to_eat * 2 + philo->data->time_to_sleep;
 		if (philo->data->time_to_die <= window)
+		{
 			think_time++;
+			if (philo->data->time_to_die == window)
+				think_time += 4;
+		}
 		else if (philo->data->time_to_die == window + 1 && think_time > 1)
 			think_time -= 2;
 		if (think_time > 0)

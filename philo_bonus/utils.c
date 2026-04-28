@@ -54,11 +54,11 @@ void	precise_sleep(long time_ms)
 		if (elapsed >= time_ms)
 			return ;
 		remaining = time_ms - elapsed;
-		if (remaining > 10)
-			usleep(5000);
-		else if (remaining > 3)
-			usleep(1000);
+		if (remaining > 20)
+			usleep(1500);
+		else if (remaining > 5)
+			usleep(400);
 		else
-			usleep(200);
+			usleep(100);
 	}
 }
